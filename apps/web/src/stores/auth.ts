@@ -30,7 +30,10 @@ export const useAuthStore = create<AuthState>()(
       setAuth: ({ user, accessToken, refreshToken }) => {
         set({ user, accessToken, refreshToken });
         // Notify OTHER tabs (not this one) about the new token
-        authChannel.postMessage({ type: 'TOKEN_UPDATED', data: { user, accessToken, refreshToken } });
+        authChannel.postMessage({
+          type: 'TOKEN_UPDATED',
+          data: { user, accessToken, refreshToken },
+        });
       },
 
       clear: () => {
@@ -39,8 +42,8 @@ export const useAuthStore = create<AuthState>()(
         authChannel.postMessage({ type: 'LOGOUT' });
       },
     }),
-    { name: 'task-tracker.auth' },
-  ),
+    { name: 'task-tracker.auth' }
+  )
 );
 
 // Listen for auth events from OTHER tabs.
@@ -49,7 +52,11 @@ authChannel.onmessage = (event: MessageEvent<{ type: string; data?: AuthResult }
   const { type, data } = event.data;
   if (type === 'TOKEN_UPDATED' && data) {
     // Silently update state — do NOT call setAuth() which would re-broadcast
-    useAuthStore.setState({ user: data.user, accessToken: data.accessToken, refreshToken: data.refreshToken });
+    useAuthStore.setState({
+      user: data.user,
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
   } else if (type === 'LOGOUT') {
     // Silently clear state — do NOT call clear() which would re-broadcast
     useAuthStore.setState({ user: null, accessToken: null, refreshToken: null });

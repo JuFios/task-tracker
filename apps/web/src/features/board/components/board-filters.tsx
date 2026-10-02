@@ -3,12 +3,7 @@ import { Button } from '../../../components/ui/button';
 import { Input } from '../../../components/ui/input';
 import { Select } from '../../../components/ui/select';
 import type { WorkspaceMemberInfo } from '../../../types';
-import {
-  PRIORITY_LABEL,
-  STATUS_LABEL,
-  TASK_PRIORITIES,
-  TASK_STATUSES,
-} from '../constants';
+import { PRIORITY_LABEL, STATUS_LABEL, TASK_PRIORITIES, TASK_STATUSES } from '../constants';
 import { EMPTY_FILTERS, type BoardFilters } from '../schemas';
 
 interface BoardFiltersBarProps {
@@ -18,12 +13,7 @@ interface BoardFiltersBarProps {
   disabled?: boolean;
 }
 
-export function BoardFiltersBar({
-  filters,
-  onChange,
-  members,
-  disabled,
-}: BoardFiltersBarProps) {
+export function BoardFiltersBar({ filters, onChange, members, disabled }: BoardFiltersBarProps) {
   const set = <K extends keyof BoardFilters>(key: K, value: BoardFilters[K]) =>
     onChange({ ...filters, [key]: value });
 
@@ -62,9 +52,7 @@ export function BoardFiltersBar({
         aria-label="Filter by priority"
         value={filters.priority}
         disabled={disabled}
-        onChange={(event) =>
-          set('priority', event.target.value as BoardFilters['priority'])
-        }
+        onChange={(event) => set('priority', event.target.value as BoardFilters['priority'])}
         className="h-9 w-36"
       >
         <option value="">All priorities</option>

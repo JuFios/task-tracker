@@ -7,7 +7,7 @@ export interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select(
   { className, invalid, children, ...props },
-  ref,
+  ref
 ) {
   return (
     <select
@@ -17,7 +17,7 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(function Select
         'shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600',
         'disabled:cursor-not-allowed disabled:bg-slate-50',
         invalid && 'ring-rose-400 focus:ring-rose-500',
-        className,
+        className
       )}
       {...props}
     >

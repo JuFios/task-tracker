@@ -30,9 +30,7 @@ function toPayload(values: TaskFormValues) {
 
 export const boardApi = {
   listPage: (projectId: string, params: TaskQueryParams) =>
-    api
-      .get<Paginated<TaskCard>>(`/projects/${projectId}/tasks`, { params })
-      .then((r) => r.data),
+    api.get<Paginated<TaskCard>>(`/projects/${projectId}/tasks`, { params }).then((r) => r.data),
 
   /** Pages through the whole unfiltered result set — the board must be complete for ordering to work. */
   fetchAll: async (projectId: string): Promise<TaskCard[]> => {
@@ -48,7 +46,10 @@ export const boardApi = {
 
   create: (projectId: string, values: TaskFormValues & { status?: TaskStatus }) =>
     api
-      .post<TaskCard>(`/projects/${projectId}/tasks`, { ...toPayload(values), status: values.status })
+      .post<TaskCard>(`/projects/${projectId}/tasks`, {
+        ...toPayload(values),
+        status: values.status,
+      })
       .then((r) => r.data),
 
   update: (taskId: string, values: Partial<TaskFormValues>) => {
@@ -64,18 +65,14 @@ export const boardApi = {
   },
 
   move: (taskId: string, status: TaskStatus, position: number) =>
-    api
-      .patch<TaskCard>(`/tasks/${taskId}/move`, { status, position })
-      .then((r) => r.data),
+    api.patch<TaskCard>(`/tasks/${taskId}/move`, { status, position }).then((r) => r.data),
 
   remove: (taskId: string) => api.delete(`/tasks/${taskId}`),
 
   details: (taskId: string) => api.get<TaskDetails>(`/tasks/${taskId}`).then((r) => r.data),
 
   addComment: (taskId: string, content: string) =>
-    api
-      .post<TaskComment>(`/tasks/${taskId}/comments`, { content })
-      .then((r) => r.data),
+    api.post<TaskComment>(`/tasks/${taskId}/comments`, { content }).then((r) => r.data),
 
   updateComment: (taskId: string, commentId: string, content: string) =>
     api

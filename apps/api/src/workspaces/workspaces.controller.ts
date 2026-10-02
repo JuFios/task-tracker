@@ -28,7 +28,7 @@ import { WorkspacesService } from './workspaces.service';
 export class WorkspacesController {
   constructor(
     private readonly workspacesService: WorkspacesService,
-    private readonly tasksGateway: TasksGateway,
+    private readonly tasksGateway: TasksGateway
   ) {}
 
   @Get('workspaces')
@@ -45,10 +45,7 @@ export class WorkspacesController {
 
   @Get('workspaces/:workspaceId')
   @ApiOperation({ summary: 'Get workspace details (members only)' })
-  getById(
-    @CurrentUser() user: AuthUser,
-    @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
-  ) {
+  getById(@CurrentUser() user: AuthUser, @Param('workspaceId', ParseUUIDPipe) workspaceId: string) {
     return this.workspacesService.getById(user.id, workspaceId);
   }
 
@@ -57,7 +54,7 @@ export class WorkspacesController {
   rename(
     @CurrentUser() user: AuthUser,
     @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
-    @Body() dto: RenameWorkspaceDto,
+    @Body() dto: RenameWorkspaceDto
   ) {
     return this.workspacesService.rename(user.id, workspaceId, dto);
   }
@@ -67,7 +64,7 @@ export class WorkspacesController {
   @ApiOperation({ summary: 'Delete workspace with all projects (owner only)' })
   async remove(
     @CurrentUser() user: AuthUser,
-    @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
+    @Param('workspaceId', ParseUUIDPipe) workspaceId: string
   ): Promise<void> {
     await this.workspacesService.remove(user.id, workspaceId);
   }
@@ -76,7 +73,7 @@ export class WorkspacesController {
   @ApiOperation({ summary: 'List workspace members' })
   listMembers(
     @CurrentUser() user: AuthUser,
-    @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
+    @Param('workspaceId', ParseUUIDPipe) workspaceId: string
   ) {
     return this.workspacesService.listMembers(user.id, workspaceId);
   }
@@ -86,7 +83,7 @@ export class WorkspacesController {
   invite(
     @CurrentUser() user: AuthUser,
     @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
-    @Body() dto: InviteMemberDto,
+    @Body() dto: InviteMemberDto
   ) {
     return this.workspacesService.inviteMember(user.id, workspaceId, dto);
   }
@@ -97,14 +94,9 @@ export class WorkspacesController {
     @CurrentUser() user: AuthUser,
     @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
     @Param('memberId', ParseUUIDPipe) memberId: string,
-    @Body() dto: UpdateMemberRoleDto,
+    @Body() dto: UpdateMemberRoleDto
   ) {
-    return this.workspacesService.updateMemberRole(
-      user.id,
-      workspaceId,
-      memberId,
-      dto,
-    );
+    return this.workspacesService.updateMemberRole(user.id, workspaceId, memberId, dto);
   }
 
   @Delete('workspaces/:workspaceId/members/:memberId')
@@ -113,7 +105,7 @@ export class WorkspacesController {
   async removeMember(
     @CurrentUser() user: AuthUser,
     @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
-    @Param('memberId', ParseUUIDPipe) memberId: string,
+    @Param('memberId', ParseUUIDPipe) memberId: string
   ): Promise<void> {
     const result = await this.workspacesService.removeMember(user.id, workspaceId, memberId);
     // Remove from socket rooms
@@ -126,7 +118,7 @@ export class WorkspacesController {
   async transferOwnership(
     @CurrentUser() user: AuthUser,
     @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
-    @Body() dto: TransferOwnershipDto,
+    @Body() dto: TransferOwnershipDto
   ): Promise<void> {
     await this.workspacesService.transferOwnership(user.id, workspaceId, dto.newOwnerId);
   }
@@ -136,7 +128,7 @@ export class WorkspacesController {
   @ApiOperation({ summary: 'Leave the workspace (members only, not owners)' })
   async leaveWorkspace(
     @CurrentUser() user: AuthUser,
-    @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
+    @Param('workspaceId', ParseUUIDPipe) workspaceId: string
   ): Promise<void> {
     await this.workspacesService.leaveWorkspace(user.id, workspaceId);
     // Evict from socket rooms since they are no longer a member

@@ -4,9 +4,7 @@ import { z } from 'zod';
 const DEV_JWT_ACCESS_SECRET = 'dev-access-secret-change-me-0123456789abcdef';
 
 const envSchema = z.object({
-  NODE_ENV: z
-    .enum(['development', 'test', 'production'])
-    .default('development'),
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
   PORT: z.coerce.number().int().positive().default(3000),
   DATABASE_URL: z.string().min(1, 'DATABASE_URL is required'),
   JWT_ACCESS_SECRET: z
@@ -34,7 +32,7 @@ export function validateEnv(config: Record<string, unknown>): Env {
       : undefined;
   if (!secret && parsed.NODE_ENV === 'production') {
     throw new Error(
-      'JWT_ACCESS_SECRET must be set to a unique secret (>= 32 chars) when NODE_ENV=production',
+      'JWT_ACCESS_SECRET must be set to a unique secret (>= 32 chars) when NODE_ENV=production'
     );
   }
 

@@ -14,10 +14,7 @@ interface ErrorBoundaryState {
  * Global render-error fallback: an unexpected exception in any component
  * replaces the screen with a recovery UI instead of a blank page.
  */
-export class ErrorBoundary extends Component<
-  ErrorBoundaryProps,
-  ErrorBoundaryState
-> {
+export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null };
 
   static getDerivedStateFromError(error: Error): ErrorBoundaryState {
@@ -45,12 +42,9 @@ export class ErrorBoundary extends Component<
         <div className="rounded-full bg-rose-100 p-3">
           <AlertTriangle className="h-6 w-6 text-rose-600" aria-hidden />
         </div>
-        <h1 className="text-lg font-semibold text-slate-900">
-          Something went wrong
-        </h1>
+        <h1 className="text-lg font-semibold text-slate-900">Something went wrong</h1>
         <p className="max-w-sm text-sm text-slate-500">
-          An unexpected error occurred while rendering this page. Your data is
-          safe — try reloading.
+          An unexpected error occurred while rendering this page. Your data is safe — try reloading.
         </p>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={this.reset}>

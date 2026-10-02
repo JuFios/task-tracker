@@ -35,11 +35,8 @@ export function MembersPanel({ workspaceId, myRole }: MembersPanelProps) {
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ['workspaces'] });
 
-
-
   const transferMutation = useMutation({
-    mutationFn: (newOwnerId: string) =>
-      workspacesApi.transferOwnership(workspaceId, newOwnerId),
+    mutationFn: (newOwnerId: string) => workspacesApi.transferOwnership(workspaceId, newOwnerId),
     onSuccess: () => {
       toast.success('Ownership transferred');
       invalidate();
@@ -104,10 +101,7 @@ export function MembersPanel({ workspaceId, myRole }: MembersPanelProps) {
             // Owner can manage only non-owner, non-self members
             const canManage = isOwner && member.role !== 'OWNER' && !isSelf;
             return (
-              <li
-                key={member.id}
-                className="flex items-center gap-3 px-4 py-3"
-              >
+              <li key={member.id} className="flex items-center gap-3 px-4 py-3">
                 <Avatar name={member.user.name} />
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2">

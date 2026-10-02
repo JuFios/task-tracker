@@ -81,17 +81,12 @@ export function WorkspacesPage() {
               <p className="mt-1 text-sm text-slate-500">
                 {workspace._count.projects}{' '}
                 {workspace._count.projects === 1 ? 'project' : 'projects'} ·{' '}
-                {workspace._count.members}{' '}
-                {workspace._count.members === 1 ? 'member' : 'members'}
+                {workspace._count.members} {workspace._count.members === 1 ? 'member' : 'members'}
               </p>
               <div className="mt-4 flex items-center">
                 <div className="flex -space-x-2">
                   {workspace.members.slice(0, 5).map((member) => (
-                    <Avatar
-                      key={member.id}
-                      name={member.user.name}
-                      className="ring-2 ring-white"
-                    />
+                    <Avatar key={member.id} name={member.user.name} className="ring-2 ring-white" />
                   ))}
                 </div>
                 {workspace._count.members > 5 && (

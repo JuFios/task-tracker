@@ -27,7 +27,11 @@ export function BoardPage() {
 
   useBoardSocket(projectId);
 
-  const { data: project, isLoading: projectLoading, error: projectError } = useQuery({
+  const {
+    data: project,
+    isLoading: projectLoading,
+    error: projectError,
+  } = useQuery({
     queryKey: ['projects', projectId],
     queryFn: () => projectsApi.get(projectId),
     retry: false,
@@ -45,7 +49,12 @@ export function BoardPage() {
     enabled: Boolean(project),
   });
 
-  const { data: tasks, isLoading: tasksLoading, error: tasksError, hasFilters } = useBoardTasks(projectId, filters);
+  const {
+    data: tasks,
+    isLoading: tasksLoading,
+    error: tasksError,
+    hasFilters,
+  } = useBoardTasks(projectId, filters);
 
   if (projectLoading) return <FullPageSpinner />;
 

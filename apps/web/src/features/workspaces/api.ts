@@ -12,8 +12,7 @@ export const workspacesApi = {
   get: (workspaceId: string) =>
     api.get<WorkspacePreview>(`/workspaces/${workspaceId}`).then((r) => r.data),
 
-  create: (name: string) =>
-    api.post<WorkspacePreview>('/workspaces', { name }).then((r) => r.data),
+  create: (name: string) => api.post<WorkspacePreview>('/workspaces', { name }).then((r) => r.data),
 
   rename: (workspaceId: string, name: string) =>
     api
@@ -32,10 +31,7 @@ export const workspacesApi = {
 
   updateMemberRole: (workspaceId: string, memberId: string, role: WorkspaceRole) =>
     api
-      .patch<WorkspaceMemberInfo>(
-        `/workspaces/${workspaceId}/members/${memberId}`,
-        { role },
-      )
+      .patch<WorkspaceMemberInfo>(`/workspaces/${workspaceId}/members/${memberId}`, { role })
       .then((r) => r.data),
 
   removeMember: (workspaceId: string, memberId: string) =>
@@ -44,23 +40,17 @@ export const workspacesApi = {
   transferOwnership: (workspaceId: string, newOwnerId: string) =>
     api.post(`/workspaces/${workspaceId}/transfer-ownership`, { newOwnerId }),
 
-  leave: (workspaceId: string) =>
-    api.post(`/workspaces/${workspaceId}/leave`),
+  leave: (workspaceId: string) => api.post(`/workspaces/${workspaceId}/leave`),
 };
 
 export const projectsApi = {
   list: (workspaceId: string) =>
-    api
-      .get<ProjectPreview[]>(`/workspaces/${workspaceId}/projects`)
-      .then((r) => r.data),
+    api.get<ProjectPreview[]>(`/workspaces/${workspaceId}/projects`).then((r) => r.data),
 
-  get: (projectId: string) =>
-    api.get<ProjectPreview>(`/projects/${projectId}`).then((r) => r.data),
+  get: (projectId: string) => api.get<ProjectPreview>(`/projects/${projectId}`).then((r) => r.data),
 
   create: (workspaceId: string, values: { name: string; description?: string }) =>
-    api
-      .post<ProjectPreview>(`/workspaces/${workspaceId}/projects`, values)
-      .then((r) => r.data),
+    api.post<ProjectPreview>(`/workspaces/${workspaceId}/projects`, values).then((r) => r.data),
 
   update: (projectId: string, values: { name?: string; description?: string }) =>
     api.patch<ProjectPreview>(`/projects/${projectId}`, values).then((r) => r.data),

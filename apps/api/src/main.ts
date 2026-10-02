@@ -25,7 +25,7 @@ async function bootstrap(): Promise<void> {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('Task Tracker API')
     .setDescription(
-      'Task Tracker — workspaces, projects, Kanban tasks with realtime collaboration.',
+      'Task Tracker — workspaces, projects, Kanban tasks with realtime collaboration.'
     )
     .setVersion('1.0.0')
     .addBearerAuth()

@@ -15,8 +15,11 @@ interface TaskCardViewProps {
 }
 
 export function TaskCardView({ task, disabled, onOpen }: TaskCardViewProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
-    useSortable({ id: task.id, data: { task }, disabled });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: task.id,
+    data: { task },
+    disabled,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -49,7 +52,7 @@ export function TaskCardView({ task, disabled, onOpen }: TaskCardViewProps) {
       className={cn(
         'group cursor-grab rounded-xl bg-white p-3 shadow-sm ring-1 ring-slate-200 transition hover:shadow-md hover:ring-indigo-300',
         'focus-visible:outline focus-visible:outline-2 focus-visible:outline-indigo-500',
-        isDragging && 'z-30 rotate-2 cursor-grabbing opacity-90 shadow-lg ring-indigo-400',
+        isDragging && 'z-30 rotate-2 cursor-grabbing opacity-90 shadow-lg ring-indigo-400'
       )}
     >
       <div className="flex items-start justify-between gap-2">
@@ -59,9 +62,7 @@ export function TaskCardView({ task, disabled, onOpen }: TaskCardViewProps) {
         </Badge>
         {task.assignee && <Avatar name={task.assignee.name} className="h-6 w-6 text-[10px]" />}
       </div>
-      <h3 className="mt-2 text-sm font-medium leading-snug text-slate-900">
-        {task.title}
-      </h3>
+      <h3 className="mt-2 text-sm font-medium leading-snug text-slate-900">{task.title}</h3>
       {task.description && (
         <p className="mt-1 line-clamp-2 text-xs text-slate-500">{task.description}</p>
       )}
@@ -70,7 +71,7 @@ export function TaskCardView({ task, disabled, onOpen }: TaskCardViewProps) {
           <span
             className={cn(
               'inline-flex items-center gap-1',
-              overdue ? 'font-medium text-rose-600' : 'text-slate-500',
+              overdue ? 'font-medium text-rose-600' : 'text-slate-500'
             )}
           >
             <Calendar className="h-3.5 w-3.5" />

@@ -25,7 +25,7 @@ export class ProjectsController {
   @ApiOperation({ summary: 'List projects of a workspace' })
   listForWorkspace(
     @CurrentUser() user: AuthUser,
-    @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
+    @Param('workspaceId', ParseUUIDPipe) workspaceId: string
   ) {
     return this.projectsService.listForWorkspace(user.id, workspaceId);
   }
@@ -35,17 +35,14 @@ export class ProjectsController {
   create(
     @CurrentUser() user: AuthUser,
     @Param('workspaceId', ParseUUIDPipe) workspaceId: string,
-    @Body() dto: CreateProjectDto,
+    @Body() dto: CreateProjectDto
   ) {
     return this.projectsService.create(user.id, workspaceId, dto);
   }
 
   @Get('projects/:projectId')
   @ApiOperation({ summary: 'Get project details' })
-  getById(
-    @CurrentUser() user: AuthUser,
-    @Param('projectId', ParseUUIDPipe) projectId: string,
-  ) {
+  getById(@CurrentUser() user: AuthUser, @Param('projectId', ParseUUIDPipe) projectId: string) {
     return this.projectsService.getById(user.id, projectId);
   }
 
@@ -54,7 +51,7 @@ export class ProjectsController {
   update(
     @CurrentUser() user: AuthUser,
     @Param('projectId', ParseUUIDPipe) projectId: string,
-    @Body() dto: UpdateProjectDto,
+    @Body() dto: UpdateProjectDto
   ) {
     return this.projectsService.update(user.id, projectId, dto);
   }
@@ -64,7 +61,7 @@ export class ProjectsController {
   @ApiOperation({ summary: 'Delete a project with all its tasks (owner only)' })
   async remove(
     @CurrentUser() user: AuthUser,
-    @Param('projectId', ParseUUIDPipe) projectId: string,
+    @Param('projectId', ParseUUIDPipe) projectId: string
   ): Promise<void> {
     await this.projectsService.remove(user.id, projectId);
   }

@@ -13,7 +13,7 @@ export function Avatar({ name, className }: AvatarProps) {
         'inline-flex h-8 w-8 shrink-0 select-none items-center justify-center rounded-full',
         'text-xs font-semibold text-white',
         avatarColor(name),
-        className,
+        className
       )}
     >
       {initials(name)}

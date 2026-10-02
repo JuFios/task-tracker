@@ -1,14 +1,7 @@
 import type { ReactNode } from 'react';
 import { cn } from '../../lib/utils';
 
-export type BadgeTone =
-  | 'slate'
-  | 'blue'
-  | 'amber'
-  | 'rose'
-  | 'emerald'
-  | 'indigo'
-  | 'violet';
+export type BadgeTone = 'slate' | 'blue' | 'amber' | 'rose' | 'emerald' | 'indigo' | 'violet';
 
 const TONES: Record<BadgeTone, string> = {
   slate: 'bg-slate-100 text-slate-700 ring-slate-200',
@@ -32,7 +25,7 @@ export function Badge({ tone = 'slate', children, className }: BadgeProps) {
       className={cn(
         'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ring-1 ring-inset',
         TONES[tone],
-        className,
+        className
       )}
     >
       {children}

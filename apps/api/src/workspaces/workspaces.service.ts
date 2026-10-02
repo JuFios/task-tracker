@@ -122,7 +122,9 @@ export class WorkspacesService {
         where: { workspaceId, role: WorkspaceRole.OWNER },
       });
       if (existingOwner) {
-        throw new BadRequestException('Workspace already has an owner. Use transfer ownership instead.');
+        throw new BadRequestException(
+          'Workspace already has an owner. Use transfer ownership instead.'
+        );
       }
     }
 
@@ -140,7 +142,9 @@ export class WorkspacesService {
           user: { select: { id: true, name: true, email: true } },
         },
       });
-      this.logger.log(`User ${userId} invited ${invitee.id} to workspace ${workspaceId} as ${requestedRole}`);
+      this.logger.log(
+        `User ${userId} invited ${invitee.id} to workspace ${workspaceId} as ${requestedRole}`
+      );
       return member;
     } catch (error) {
       if (this.isUniqueViolation(error)) {
@@ -154,7 +158,7 @@ export class WorkspacesService {
     userId: string,
     workspaceId: string,
     memberId: string,
-    dto: UpdateMemberRoleDto,
+    dto: UpdateMemberRoleDto
   ) {
     const actor = await this.assertRole(userId, workspaceId, WorkspaceRole.OWNER);
     const member = await this.findMemberOrThrow(memberId, workspaceId);
@@ -172,7 +176,9 @@ export class WorkspacesService {
         where: { workspaceId, role: WorkspaceRole.OWNER },
       });
       if (existingOwner && existingOwner.id !== memberId) {
-        throw new BadRequestException('Workspace already has an owner. Use transfer ownership instead.');
+        throw new BadRequestException(
+          'Workspace already has an owner. Use transfer ownership instead.'
+        );
       }
     }
 
@@ -190,14 +196,12 @@ export class WorkspacesService {
   async removeMember(
     userId: string,
     workspaceId: string,
-    memberId: string,
+    memberId: string
   ): Promise<{ removedUserId: string; workspaceId: string }> {
     await this.assertRole(userId, workspaceId, WorkspaceRole.OWNER);
     const member = await this.findMemberOrThrow(memberId, workspaceId);
     if (member.role === WorkspaceRole.OWNER) {
-      throw new BadRequestException(
-        'The owner cannot be removed. Delete the workspace instead.',
-      );
+      throw new BadRequestException('The owner cannot be removed. Delete the workspace instead.');
     }
 
     await this.prisma.$transaction(async (tx) => {
@@ -230,11 +234,7 @@ export class WorkspacesService {
    * The current owner becomes a regular member.
    * NOTE: newOwnerId is the target user's id (not WorkspaceMember.id).
    */
-  async transferOwnership(
-    userId: string,
-    workspaceId: string,
-    newOwnerId: string,
-  ): Promise<void> {
+  async transferOwnership(userId: string, workspaceId: string, newOwnerId: string): Promise<void> {
     const actor = await this.assertRole(userId, workspaceId, WorkspaceRole.OWNER);
 
     if (newOwnerId === userId) {
@@ -263,7 +263,9 @@ export class WorkspacesService {
       });
     });
 
-    this.logger.log(`User ${userId} transferred ownership of workspace ${workspaceId} to user ${newOwnerId}`);
+    this.logger.log(
+      `User ${userId} transferred ownership of workspace ${workspaceId} to user ${newOwnerId}`
+    );
   }
 
   /**
@@ -275,7 +277,7 @@ export class WorkspacesService {
 
     if (membership.role === WorkspaceRole.OWNER) {
       throw new BadRequestException(
-        'Owners cannot leave. Transfer ownership or delete the workspace first.',
+        'Owners cannot leave. Transfer ownership or delete the workspace first.'
       );
     }
 
@@ -304,10 +306,7 @@ export class WorkspacesService {
   }
 
   /** Returns the membership if the user belongs to the workspace, else 403. */
-  async assertMember(
-    userId: string,
-    workspaceId: string,
-  ): Promise<WorkspaceMember> {
+  async assertMember(userId: string, workspaceId: string): Promise<WorkspaceMember> {
     const membership = await this.prisma.workspaceMember.findUnique({
       where: { userId_workspaceId: { userId, workspaceId } },
     });
@@ -320,13 +319,11 @@ export class WorkspacesService {
   async assertRole(
     userId: string,
     workspaceId: string,
-    role: WorkspaceRole,
+    role: WorkspaceRole
   ): Promise<WorkspaceMember> {
     const membership = await this.assertMember(userId, workspaceId);
     if (membership.role !== role) {
-      throw new ForbiddenException(
-        `This action requires the ${role.toLowerCase()} role`,
-      );
+      throw new ForbiddenException(`This action requires the ${role.toLowerCase()} role`);
     }
     return membership;
   }

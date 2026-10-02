@@ -26,10 +26,7 @@ export default function App() {
         <Route element={<AppLayout />}>
           <Route path="/workspaces" element={<WorkspacesPage />} />
           <Route path="/workspaces/:workspaceId" element={<WorkspacePage />} />
-          <Route
-            path="/workspaces/:workspaceId/projects/:projectId"
-            element={<BoardPage />}
-          />
+          <Route path="/workspaces/:workspaceId/projects/:projectId" element={<BoardPage />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />

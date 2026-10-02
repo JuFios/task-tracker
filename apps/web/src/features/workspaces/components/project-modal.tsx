@@ -58,7 +58,12 @@ export function ProjectModal({ open, onClose, workspaceId, project }: ProjectMod
       }
       close();
     } catch (error) {
-      toast.error(errorMessage(error, isEditing ? 'Could not update the project' : 'Could not create the project'));
+      toast.error(
+        errorMessage(
+          error,
+          isEditing ? 'Could not update the project' : 'Could not create the project'
+        )
+      );
     }
   });
 
@@ -73,7 +78,11 @@ export function ProjectModal({ open, onClose, workspaceId, project }: ProjectMod
             {...register('name')}
           />
         </Field>
-        <Field label="Description" htmlFor="project-description" error={errors.description?.message}>
+        <Field
+          label="Description"
+          htmlFor="project-description"
+          error={errors.description?.message}
+        >
           <Textarea
             id="project-description"
             rows={3}

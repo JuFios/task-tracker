@@ -42,7 +42,11 @@ export function WorkspacePage() {
     project?: { id: string; name: string; description: string | null };
   }>({ open: false });
 
-  const { data: workspace, isLoading, error } = useQuery({
+  const {
+    data: workspace,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ['workspaces', workspaceId],
     queryFn: () => workspacesApi.get(workspaceId),
     retry: false,
@@ -268,21 +272,15 @@ export function WorkspacePage() {
               key={project.id}
               className="group relative flex flex-col rounded-2xl bg-white p-5 ring-1 ring-slate-200 transition-shadow hover:shadow-md hover:ring-indigo-200"
             >
-              <Link
-                to={`/workspaces/${workspaceId}/projects/${project.id}`}
-                className="flex-1"
-              >
+              <Link to={`/workspaces/${workspaceId}/projects/${project.id}`} className="flex-1">
                 <h2 className="font-semibold text-slate-900 group-hover:text-indigo-700">
                   {project.name}
                 </h2>
                 {project.description && (
-                  <p className="mt-1 line-clamp-2 text-sm text-slate-500">
-                    {project.description}
-                  </p>
+                  <p className="mt-1 line-clamp-2 text-sm text-slate-500">{project.description}</p>
                 )}
                 <p className="mt-3 text-xs text-slate-400">
-                  {project._count.tasks}{' '}
-                  {project._count.tasks === 1 ? 'task' : 'tasks'}
+                  {project._count.tasks} {project._count.tasks === 1 ? 'task' : 'tasks'}
                 </p>
               </Link>
               {isOwner && (

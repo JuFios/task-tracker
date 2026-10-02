@@ -37,14 +37,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
         `${request.method} ${request.url} → ${statusCode}: ${
           exception instanceof Error ? exception.message : 'Unknown error'
         }`,
-        exception instanceof Error ? exception.stack : undefined,
+        exception instanceof Error ? exception.stack : undefined
       );
     } else if (statusCode >= 400) {
       // Log 4xx as warnings for security monitoring (failed auth, authorization failures, etc.)
       this.logger.warn(
         `${request.method} ${request.url} → ${statusCode}: ${
           typeof message === 'string' ? message : JSON.stringify(message)
-        }`,
+        }`
       );
     }
 

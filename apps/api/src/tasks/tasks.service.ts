@@ -4,10 +4,10 @@ import {
   Injectable,
   Logger,
   NotFoundException,
-} from "@nestjs/common";
-import { TaskPriority, TaskStatus, Prisma } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import { WorkspacesService } from "../workspaces/workspaces.service";
+} from '@nestjs/common';
+import { TaskPriority, TaskStatus, Prisma } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
 import {
   CreateCommentDto,
   CreateTaskDto,
@@ -15,8 +15,8 @@ import {
   QueryTasksDto,
   UpdateCommentDto,
   UpdateTaskDto,
-} from "./dto";
-import { TasksGateway } from "./tasks.gateway";
+} from './dto';
+import { TasksGateway } from './tasks.gateway';
 
 const taskCardSelect = {
   id: true,
@@ -48,13 +48,13 @@ export class TasksService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly workspaces: WorkspacesService,
-    private readonly gateway: TasksGateway,
+    private readonly gateway: TasksGateway
   ) {}
 
   async list(
     userId: string,
     projectId: string,
-    query: QueryTasksDto,
+    query: QueryTasksDto
   ): Promise<Paginated<TaskCard>> {
     await this.workspaces.assertProjectMember(userId, projectId);
 
@@ -66,7 +66,7 @@ export class TasksService {
       ...(query.priority && { priority: query.priority }),
       ...(query.assigneeId && { assigneeId: query.assigneeId }),
       ...(query.search?.trim() && {
-        title: { contains: query.search.trim(), mode: "insensitive" },
+        title: { contains: query.search.trim(), mode: 'insensitive' },
       }),
     };
 
@@ -74,7 +74,7 @@ export class TasksService {
       this.prisma.task.findMany({
         where,
         select: taskCardSelect,
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         skip: (page - 1) * limit,
         take: limit,
       }),
@@ -87,15 +87,8 @@ export class TasksService {
     };
   }
 
-  async create(
-    userId: string,
-    projectId: string,
-    dto: CreateTaskDto,
-  ): Promise<TaskCard> {
-    const project = await this.workspaces.assertProjectMember(
-      userId,
-      projectId,
-    );
+  async create(userId: string, projectId: string, dto: CreateTaskDto): Promise<TaskCard> {
+    const project = await this.workspaces.assertProjectMember(userId, projectId);
     if (dto.assigneeId) {
       await this.assertValidAssignee(dto.assigneeId, project.workspaceId);
     }
@@ -121,7 +114,7 @@ export class TasksService {
       });
     });
 
-    this.gateway.emitTaskEvent(projectId, "task.created", task);
+    this.gateway.emitTaskEvent(projectId, 'task.created', task);
     return task;
   }
 
@@ -139,7 +132,7 @@ export class TasksService {
             updatedAt: true,
             author: { select: { id: true, name: true, email: true } },
           },
-          orderBy: { createdAt: "asc" },
+          orderBy: { createdAt: 'asc' },
         },
         history: {
           select: {
@@ -149,17 +142,13 @@ export class TasksService {
             createdAt: true,
             changedBy: { select: { id: true, name: true } },
           },
-          orderBy: { createdAt: "desc" },
+          orderBy: { createdAt: 'desc' },
         },
       },
     });
   }
 
-  async update(
-    userId: string,
-    taskId: string,
-    dto: UpdateTaskDto,
-  ): Promise<TaskCard> {
+  async update(userId: string, taskId: string, dto: UpdateTaskDto): Promise<TaskCard> {
     const existing = await this.taskWithAccess(userId, taskId);
     if (dto.assigneeId !== undefined) {
       if (dto.assigneeId === null) {
@@ -194,7 +183,7 @@ export class TasksService {
       select: taskCardSelect,
     });
 
-    this.gateway.emitTaskEvent(existing.projectId, "task.updated", task);
+    this.gateway.emitTaskEvent(existing.projectId, 'task.updated', task);
     return task;
   }
 
@@ -209,17 +198,15 @@ export class TasksService {
    * same project, preventing duplicate positions and deadlocks. The advisory
    * lock is released automatically when the transaction commits or rolls back.
    */
-  async move(
-    userId: string,
-    taskId: string,
-    dto: MoveTaskDto,
-  ): Promise<TaskCard> {
+  async move(userId: string, taskId: string, dto: MoveTaskDto): Promise<TaskCard> {
     const existing = await this.taskWithAccess(userId, taskId);
 
     const task = await this.prisma.$transaction(async (tx) => {
       // Serialize all move() operations within a project using an advisory lock.
       // hashtext() maps the UUID string to a stable int4 for pg_advisory_xact_lock.
-      await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${existing.projectId}::text))`);
+      await tx.$executeRaw(
+        Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${existing.projectId}::text))`
+      );
 
       // Re-read the task inside the transaction so its current status reflects
       // any concurrent update that committed before we acquired the lock.
@@ -235,13 +222,11 @@ export class TasksService {
           status: dto.status,
         },
         select: { id: true },
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
       });
 
       // Reconstruct the ordered list including the moved task
-      const orderedIds = targetSiblings
-        .filter((t) => t.id !== taskId)
-        .map((t) => t.id);
+      const orderedIds = targetSiblings.filter((t) => t.id !== taskId).map((t) => t.id);
       const clampedIndex = Math.max(0, Math.min(dto.position, orderedIds.length));
       orderedIds.splice(clampedIndex, 0, taskId);
 
@@ -270,13 +255,13 @@ export class TasksService {
             status: lockedTask.status,
           },
           select: { id: true },
-          orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+          orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
         });
         await this.resequence(
           tx,
           existing.projectId,
           lockedTask.status,
-          sourceSiblings.map((sibling) => sibling.id),
+          sourceSiblings.map((sibling) => sibling.id)
         );
       }
 
@@ -286,28 +271,30 @@ export class TasksService {
       });
     });
 
-    this.gateway.emitTaskEvent(existing.projectId, "task.updated", task);
+    this.gateway.emitTaskEvent(existing.projectId, 'task.updated', task);
     return task;
   }
 
   async remove(userId: string, taskId: string): Promise<void> {
     const task = await this.taskWithAccess(userId, taskId);
     await this.prisma.$transaction(async (tx) => {
-      await tx.$executeRaw(Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${task.projectId}::text))`);
+      await tx.$executeRaw(
+        Prisma.sql`SELECT pg_advisory_xact_lock(hashtext(${task.projectId}::text))`
+      );
       await tx.task.delete({ where: { id: taskId } });
       const remaining = await tx.task.findMany({
         where: { projectId: task.projectId, status: task.status },
         select: { id: true },
-        orderBy: [{ position: "asc" }, { createdAt: "asc" }],
+        orderBy: [{ position: 'asc' }, { createdAt: 'asc' }],
       });
       await this.resequence(
         tx,
         task.projectId,
         task.status,
-        remaining.map((sibling) => sibling.id),
+        remaining.map((sibling) => sibling.id)
       );
     });
-    this.gateway.emitTaskEvent(task.projectId, "task.deleted", { id: taskId });
+    this.gateway.emitTaskEvent(task.projectId, 'task.deleted', { id: taskId });
   }
 
   async addComment(userId: string, taskId: string, dto: CreateCommentDto) {
@@ -321,19 +308,14 @@ export class TasksService {
         author: { select: { id: true, name: true, email: true } },
       },
     });
-    this.gateway.emitCommentEvent(task.projectId, "comment.created", {
+    this.gateway.emitCommentEvent(task.projectId, 'comment.created', {
       taskId,
       comment,
     });
     return comment;
   }
 
-  async updateComment(
-    userId: string,
-    taskId: string,
-    commentId: string,
-    dto: UpdateCommentDto,
-  ) {
+  async updateComment(userId: string, taskId: string, commentId: string, dto: UpdateCommentDto) {
     await this.taskWithAccess(userId, taskId);
     const comment = await this.commentInTaskOrThrow(taskId, commentId);
     this.assertCommentAuthor(comment.authorId, userId);
@@ -350,16 +332,12 @@ export class TasksService {
     });
   }
 
-  async deleteComment(
-    userId: string,
-    taskId: string,
-    commentId: string,
-  ): Promise<void> {
+  async deleteComment(userId: string, taskId: string, commentId: string): Promise<void> {
     const task = await this.taskWithAccess(userId, taskId);
     const comment = await this.commentInTaskOrThrow(taskId, commentId);
     this.assertCommentAuthor(comment.authorId, userId);
     await this.prisma.comment.delete({ where: { id: commentId } });
-    this.gateway.emitCommentEvent(task.projectId, "comment.deleted", {
+    this.gateway.emitCommentEvent(task.projectId, 'comment.deleted', {
       taskId,
       commentId,
     });
@@ -377,7 +355,7 @@ export class TasksService {
       },
     });
     if (!task) {
-      throw new NotFoundException("Task not found");
+      throw new NotFoundException('Task not found');
     }
     await this.workspaces.assertMember(userId, task.project.workspaceId);
     return task;
@@ -386,7 +364,7 @@ export class TasksService {
   private async nextPositionTx(
     tx: Prisma.TransactionClient | PrismaService,
     projectId: string,
-    status: TaskStatus,
+    status: TaskStatus
   ) {
     const aggregate = await tx.task.aggregate({
       where: { projectId, status },
@@ -399,23 +377,16 @@ export class TasksService {
     tx: Prisma.TransactionClient,
     projectId: string,
     status: TaskStatus,
-    orderedIds: string[],
+    orderedIds: string[]
   ): Promise<void> {
     if (orderedIds.length === 0) return;
     await Promise.all(
-      orderedIds.map((id, index) =>
-        tx.task.update({ where: { id }, data: { position: index } }),
-      ),
+      orderedIds.map((id, index) => tx.task.update({ where: { id }, data: { position: index } }))
     );
-    this.logger.debug(
-      `Resequenced ${orderedIds.length} tasks in ${projectId}/${status}`,
-    );
+    this.logger.debug(`Resequenced ${orderedIds.length} tasks in ${projectId}/${status}`);
   }
 
-  private async assertValidAssignee(
-    userId: string,
-    workspaceId: string,
-  ): Promise<void> {
+  private async assertValidAssignee(userId: string, workspaceId: string): Promise<void> {
     // A single membership check is sufficient: if the user is a member they
     // exist; if they are not a member they cannot be assigned regardless.
     const membership = await this.prisma.workspaceMember.findUnique({
@@ -433,14 +404,14 @@ export class TasksService {
       select: { id: true, authorId: true },
     });
     if (!comment) {
-      throw new NotFoundException("Comment not found");
+      throw new NotFoundException('Comment not found');
     }
     return comment;
   }
 
   private assertCommentAuthor(authorId: string, userId: string): void {
     if (authorId !== userId) {
-      throw new ForbiddenException("Only the author can modify this comment");
+      throw new ForbiddenException('Only the author can modify this comment');
     }
   }
 }

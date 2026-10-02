@@ -137,8 +137,7 @@ function CommentItem({
     formState: { errors, isSubmitting },
   } = useForm<CommentValues>({ resolver: zodResolver(commentSchema) });
 
-  const invalidate = () =>
-    queryClient.invalidateQueries({ queryKey: ['tasks', taskId] });
+  const invalidate = () => queryClient.invalidateQueries({ queryKey: ['tasks', taskId] });
 
   const updateMutation = useMutation({
     mutationFn: (values: CommentValues) =>
@@ -276,7 +275,12 @@ export function TaskDetailModal({
           <Spinner className="h-6 w-6 text-indigo-600" />
         </div>
       ) : editing ? (
-        <EditForm task={task} members={members} onDone={() => setEditing(false)} onCancel={() => setEditing(false)} />
+        <EditForm
+          task={task}
+          members={members}
+          onDone={() => setEditing(false)}
+          onCancel={() => setEditing(false)}
+        />
       ) : (
         <div className="space-y-5 max-h-[70vh] overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-slate-200">
           <div className="flex flex-wrap items-center gap-2">
@@ -319,7 +323,9 @@ export function TaskDetailModal({
 
           <div className="grid gap-3 rounded-xl bg-slate-50 p-3 text-sm sm:grid-cols-3">
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-400">Assignee</div>
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Assignee
+              </div>
               <div className="mt-1 flex items-center gap-2">
                 {task.assignee ? (
                   <>
@@ -332,11 +338,15 @@ export function TaskDetailModal({
               </div>
             </div>
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-400">Created</div>
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Created
+              </div>
               <div className="mt-1">{formatDate(task.createdAt)}</div>
             </div>
             <div>
-              <div className="text-xs font-medium uppercase tracking-wide text-slate-400">Updated</div>
+              <div className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                Updated
+              </div>
               <div className="mt-1">{formatDateTime(task.updatedAt)}</div>
             </div>
           </div>
@@ -369,9 +379,7 @@ export function TaskDetailModal({
                 invalid={Boolean(errors.content)}
                 {...register('content')}
               />
-              {errors.content && (
-                <p className="text-xs text-rose-600">{errors.content.message}</p>
-              )}
+              {errors.content && <p className="text-xs text-rose-600">{errors.content.message}</p>}
               <div className="flex justify-end">
                 <Button type="submit" size="sm" loading={isSubmitting}>
                   <Send className="h-3.5 w-3.5" />
@@ -397,12 +405,14 @@ export function TaskDetailModal({
                       <p className="text-sm text-slate-700">
                         {entry.fromStatus ? (
                           <>
-                            Moved from <span className="font-medium">{STATUS_LABEL[entry.fromStatus]}</span> to{' '}
+                            Moved from{' '}
+                            <span className="font-medium">{STATUS_LABEL[entry.fromStatus]}</span> to{' '}
                             <span className="font-medium">{STATUS_LABEL[entry.toStatus]}</span>
                           </>
                         ) : (
                           <>
-                            Created in <span className="font-medium">{STATUS_LABEL[entry.toStatus]}</span>
+                            Created in{' '}
+                            <span className="font-medium">{STATUS_LABEL[entry.toStatus]}</span>
                           </>
                         )}
                       </p>

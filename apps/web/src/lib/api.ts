@@ -23,10 +23,9 @@ let refreshPromise: Promise<void> | null = null;
 async function refreshTokens(): Promise<void> {
   const { refreshToken, setAuth } = useAuthStore.getState();
   if (!refreshToken) throw new Error('Missing refresh token');
-  const { data } = await axios.post<AuthResult>(
-    `${api.defaults.baseURL}/auth/refresh`,
-    { refreshToken },
-  );
+  const { data } = await axios.post<AuthResult>(`${api.defaults.baseURL}/auth/refresh`, {
+    refreshToken,
+  });
   setAuth(data);
 }
 
@@ -54,7 +53,7 @@ api.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  },
+  }
 );
 
 export function errorMessage(error: unknown, fallback = 'Something went wrong'): string {

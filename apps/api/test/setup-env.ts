@@ -26,11 +26,12 @@ if (!process.env.WEB_ORIGIN) {
 }
 
 // Safety check: prevent running tests on production database
-if (process.env.DATABASE_URL?.includes('task_tracker_test') === false &&
-    process.env.NODE_ENV === 'test') {
+if (
+  process.env.DATABASE_URL?.includes('task_tracker_test') === false &&
+  process.env.NODE_ENV === 'test'
+) {
   throw new Error(
     'SAFETY: Tests require DATABASE_URL to contain "task_tracker_test" when NODE_ENV=test. ' +
-    'This prevents accidental data loss on production databases.'
+      'This prevents accidental data loss on production databases.'
   );
 }
-

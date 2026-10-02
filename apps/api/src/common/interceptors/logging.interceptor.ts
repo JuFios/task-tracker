@@ -1,10 +1,4 @@
-import {
-  CallHandler,
-  ExecutionContext,
-  Injectable,
-  Logger,
-  NestInterceptor,
-} from '@nestjs/common';
+import { CallHandler, ExecutionContext, Injectable, Logger, NestInterceptor } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 
 const SLOW_REQUEST_THRESHOLD_MS = 500;
@@ -36,8 +30,7 @@ export class LoggingInterceptor implements NestInterceptor {
         const duration = Math.round(performance.now() - start);
         const { method, url } = request;
         const { statusCode } = response;
-        const suffix =
-          duration > SLOW_REQUEST_THRESHOLD_MS ? ` ⚠ SLOW (${duration}ms)` : '';
+        const suffix = duration > SLOW_REQUEST_THRESHOLD_MS ? ` ⚠ SLOW (${duration}ms)` : '';
 
         // Log 4xx as warnings for security monitoring
         if (statusCode >= 400 && statusCode < 500) {
@@ -45,7 +38,7 @@ export class LoggingInterceptor implements NestInterceptor {
         } else {
           this.logger.log(`${method} ${url} ${statusCode} ${duration}ms${suffix}`);
         }
-      }),
+      })
     );
   }
 }

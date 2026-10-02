@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 /* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
 /* eslint-disable @typescript-eslint/unbound-method */
-import { BadRequestException, ForbiddenException, NotFoundException } from "@nestjs/common";
-import { TaskPriority, TaskStatus } from "@prisma/client";
-import { PrismaService } from "../prisma/prisma.service";
-import { WorkspacesService } from "../workspaces/workspaces.service";
-import { TasksService } from "./tasks.service";
-import { TasksGateway } from "./tasks.gateway";
+import { BadRequestException, ForbiddenException, NotFoundException } from '@nestjs/common';
+import { TaskPriority, TaskStatus } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
+import { WorkspacesService } from '../workspaces/workspaces.service';
+import { TasksService } from './tasks.service';
+import { TasksGateway } from './tasks.gateway';
 
 type MockPrisma = {
   task: Record<string, jest.Mock>;
@@ -16,10 +16,10 @@ type MockPrisma = {
   $transaction: jest.Mock;
 };
 
-const USER_ID = "user-1";
-const PROJECT_ID = "project-1";
-const WORKSPACE_ID = "workspace-1";
-const TASK_ID = "task-1";
+const USER_ID = 'user-1';
+const PROJECT_ID = 'project-1';
+const WORKSPACE_ID = 'workspace-1';
+const TASK_ID = 'task-1';
 
 const existingTask = {
   id: TASK_ID,
@@ -54,7 +54,7 @@ function buildService() {
       aggregate: jest.fn().mockResolvedValue({ _max: { position: 4 } }),
     },
     user: {
-      findUnique: jest.fn().mockResolvedValue({ id: "user-2" }),
+      findUnique: jest.fn().mockResolvedValue({ id: 'user-2' }),
     },
     comment: {
       findFirst: jest.fn(),
@@ -64,14 +64,12 @@ function buildService() {
     },
     workspaceMember: { findUnique: jest.fn() },
     $transaction: jest.fn((arg: unknown) =>
-      Array.isArray(arg)
-        ? Promise.all(arg)
-        : (arg as (t: unknown) => unknown)(tx),
+      Array.isArray(arg) ? Promise.all(arg) : (arg as (t: unknown) => unknown)(tx)
     ),
   } as unknown as PrismaService & MockPrisma;
 
   const workspaces = {
-    assertMember: jest.fn().mockResolvedValue({ id: "m1", role: "MEMBER" }),
+    assertMember: jest.fn().mockResolvedValue({ id: 'm1', role: 'MEMBER' }),
     assertProjectMember: jest.fn().mockResolvedValue({
       id: PROJECT_ID,
       workspaceId: WORKSPACE_ID,
@@ -93,11 +91,11 @@ function buildService() {
   };
 }
 
-describe("TasksService", () => {
-  describe("list", () => {
-    it("returns paginated tasks ordered by position", async () => {
+describe('TasksService', () => {
+  describe('list', () => {
+    it('returns paginated tasks ordered by position', async () => {
       const { service, prisma } = buildService();
-      prisma.task.findMany.mockResolvedValue([{ id: "t1" }]);
+      prisma.task.findMany.mockResolvedValue([{ id: 't1' }]);
       prisma.task.count.mockResolvedValue(21);
 
       const result = await service.list(USER_ID, PROJECT_ID, {
@@ -120,13 +118,13 @@ describe("TasksService", () => {
           }),
           skip: 20,
           take: 10,
-        }),
+        })
       );
     });
   });
 
-  describe("create", () => {
-    it("creates a task with an initial history entry and emits an event", async () => {
+  describe('create', () => {
+    it('creates a task with an initial history entry and emits an event', async () => {
       const { service, prisma, tx, gateway } = buildService();
       // create() uses a transaction; mock tx.task.create and tx.task.aggregate
       tx.task.create.mockResolvedValue({ id: TASK_ID });
@@ -135,7 +133,7 @@ describe("TasksService", () => {
       prisma.task.aggregate.mockResolvedValue({ _max: { position: 4 } });
 
       const dto = {
-        title: "  Ship it  ",
+        title: '  Ship it  ',
         priority: TaskPriority.HIGH,
         status: TaskStatus.IN_PROGRESS,
       };
@@ -145,7 +143,7 @@ describe("TasksService", () => {
       expect(tx.task.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({
-            title: "Ship it",
+            title: 'Ship it',
             position: 5,
             history: {
               create: {
@@ -154,43 +152,41 @@ describe("TasksService", () => {
               },
             },
           }),
-        }),
+        })
       );
-      expect(gateway.emitTaskEvent).toHaveBeenCalledWith(
-        PROJECT_ID,
-        "task.created",
-        { id: TASK_ID },
-      );
+      expect(gateway.emitTaskEvent).toHaveBeenCalledWith(PROJECT_ID, 'task.created', {
+        id: TASK_ID,
+      });
     });
 
-    it("rejects an assignee who is not a workspace member", async () => {
+    it('rejects an assignee who is not a workspace member', async () => {
       const { service, prisma } = buildService();
       prisma.workspaceMember.findUnique.mockResolvedValue(null);
 
       await expect(
         service.create(USER_ID, PROJECT_ID, {
-          title: "x",
-          assigneeId: "outsider",
-        } as never),
+          title: 'x',
+          assigneeId: 'outsider',
+        } as never)
       ).rejects.toBeInstanceOf(BadRequestException);
       expect(prisma.task.create).not.toHaveBeenCalled();
     });
   });
 
-  describe("update", () => {
-    it("logs history only when the status actually changes", async () => {
+  describe('update', () => {
+    it('logs history only when the status actually changes', async () => {
       const { service, prisma } = buildService();
       prisma.task.findUnique.mockResolvedValue(existingTask);
       prisma.task.update.mockResolvedValue({ id: TASK_ID });
 
       await service.update(USER_ID, TASK_ID, {
-        title: "Renamed",
+        title: 'Renamed',
         status: TaskStatus.TODO, // unchanged → no history
       } as never);
       expect(prisma.task.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.not.objectContaining({ history: expect.anything() }),
-        }),
+        })
       );
 
       prisma.task.update.mockClear();
@@ -198,23 +194,23 @@ describe("TasksService", () => {
       // Move is tested separately
     });
 
-    it("throws NotFound when the task does not exist", async () => {
+    it('throws NotFound when the task does not exist', async () => {
       const { service, prisma } = buildService();
       prisma.task.findUnique.mockResolvedValue(null);
 
       await expect(
-        service.update(USER_ID, "missing", { title: "x" } as never),
+        service.update(USER_ID, 'missing', { title: 'x' } as never)
       ).rejects.toBeInstanceOf(NotFoundException);
     });
   });
 
-  describe("move", () => {
-    it("resequences the target column and logs a status change", async () => {
+  describe('move', () => {
+    it('resequences the target column and logs a status change', async () => {
       const { service, prisma, tx } = buildService();
       prisma.task.findUnique.mockResolvedValue(existingTask);
       tx.task.findMany
-        .mockResolvedValueOnce([{ id: "a" }, { id: "b" }]) // target column
-        .mockResolvedValueOnce([{ id: "c" }]); // source column
+        .mockResolvedValueOnce([{ id: 'a' }, { id: 'b' }]) // target column
+        .mockResolvedValueOnce([{ id: 'c' }]); // source column
       tx.task.findUniqueOrThrow.mockResolvedValue({
         id: TASK_ID,
         status: TaskStatus.TODO,
@@ -233,14 +229,14 @@ describe("TasksService", () => {
             fromStatus: TaskStatus.TODO,
             toStatus: TaskStatus.DONE,
           }),
-        }),
+        })
       );
     });
 
-    it("clamps the position to the column bounds", async () => {
+    it('clamps the position to the column bounds', async () => {
       const { service, prisma, tx } = buildService();
       prisma.task.findUnique.mockResolvedValue(existingTask);
-      tx.task.findMany.mockResolvedValue([{ id: "a" }]);
+      tx.task.findMany.mockResolvedValue([{ id: 'a' }]);
       tx.task.findUniqueOrThrow.mockResolvedValue({ id: TASK_ID });
 
       await service.move(USER_ID, TASK_ID, {
@@ -251,50 +247,48 @@ describe("TasksService", () => {
       const calls = tx.task.update.mock.calls as Array<
         [{ where: { id: string }; data: { position?: number } }]
       >;
-      const byId = Object.fromEntries(
-        calls.map(([{ where, data }]) => [where.id, data.position]),
-      );
+      const byId = Object.fromEntries(calls.map(([{ where, data }]) => [where.id, data.position]));
       expect(byId[TASK_ID]).toBe(1); // clamped after the only sibling
     });
   });
 
-  describe("comments", () => {
-    const comment = { id: "c1", authorId: USER_ID };
+  describe('comments', () => {
+    const comment = { id: 'c1', authorId: USER_ID };
 
-    it("lets only the author edit a comment", async () => {
+    it('lets only the author edit a comment', async () => {
       const { service, prisma } = buildService();
       prisma.task.findUnique.mockResolvedValue(existingTask);
       prisma.comment.findFirst.mockResolvedValue({
         ...comment,
-        authorId: "someone-else",
+        authorId: 'someone-else',
       });
 
       await expect(
         service.updateComment(USER_ID, TASK_ID, comment.id, {
-          content: "hi",
-        } as never),
+          content: 'hi',
+        } as never)
       ).rejects.toBeInstanceOf(ForbiddenException);
       expect(prisma.comment.update).not.toHaveBeenCalled();
     });
 
-    it("creates a comment and broadcasts it", async () => {
+    it('creates a comment and broadcasts it', async () => {
       const { service, prisma, gateway } = buildService();
       prisma.task.findUnique.mockResolvedValue(existingTask);
       prisma.comment.create.mockResolvedValue(comment);
 
       await service.addComment(USER_ID, TASK_ID, {
-        content: "  hello  ",
+        content: '  hello  ',
       } as never);
 
       expect(prisma.comment.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          data: { taskId: TASK_ID, authorId: USER_ID, content: "hello" },
-        }),
+          data: { taskId: TASK_ID, authorId: USER_ID, content: 'hello' },
+        })
       );
       expect(gateway.emitCommentEvent).toHaveBeenCalledWith(
         PROJECT_ID,
-        "comment.created",
-        expect.objectContaining({ taskId: TASK_ID }),
+        'comment.created',
+        expect.objectContaining({ taskId: TASK_ID })
       );
     });
   });

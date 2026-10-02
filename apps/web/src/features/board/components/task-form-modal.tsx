@@ -71,7 +71,9 @@ export function TaskFormModal({
       }
       close();
     } catch (error) {
-      toast.error(errorMessage(error, isEditing ? 'Could not update the task' : 'Could not create the task'));
+      toast.error(
+        errorMessage(error, isEditing ? 'Could not update the task' : 'Could not create the task')
+      );
     }
   });
 

@@ -59,13 +59,13 @@ describe('Critical flow (e2e)', () => {
 
     prisma = app.get(PrismaService);
     await prisma.$executeRawUnsafe(
-      'TRUNCATE TABLE "RefreshToken", "TaskStatusHistory", "Comment", "Task", "Project", "WorkspaceMember", "Workspace", "User" CASCADE',
+      'TRUNCATE TABLE "RefreshToken", "TaskStatusHistory", "Comment", "Task", "Project", "WorkspaceMember", "Workspace", "User" CASCADE'
     );
   });
 
   afterAll(async () => {
     await prisma.$executeRawUnsafe(
-      'TRUNCATE TABLE "RefreshToken", "TaskStatusHistory", "Comment", "Task", "Project", "WorkspaceMember", "Workspace", "User" CASCADE',
+      'TRUNCATE TABLE "RefreshToken", "TaskStatusHistory", "Comment", "Task", "Project", "WorkspaceMember", "Workspace", "User" CASCADE'
     );
     await app.close();
   });
@@ -77,13 +77,11 @@ describe('Critical flow (e2e)', () => {
         .send({ email, name, password: 'Password123' })
         .expect(201);
 
-    owner = (await register(unique('owner') + '@example.com', 'Owner User'))
-      .body as AuthResponse;
+    owner = (await register(unique('owner') + '@example.com', 'Owner User')).body as AuthResponse;
     member = (await register(unique('member') + '@example.com', 'Member User'))
       .body as AuthResponse;
-    outsider = (
-      await register(unique('outsider') + '@example.com', 'Outsider User')
-    ).body as AuthResponse;
+    outsider = (await register(unique('outsider') + '@example.com', 'Outsider User'))
+      .body as AuthResponse;
 
     await request(baseUrl).get('/api/users/me').expect(401);
     await request(baseUrl).get('/api/workspaces').set(as(owner)).expect(200);
@@ -145,14 +143,9 @@ describe('Critical flow (e2e)', () => {
       .expect(404);
 
     // Member now sees the workspace.
-    const memberList = await request(baseUrl)
-      .get('/api/workspaces')
-      .set(as(member))
-      .expect(200);
+    const memberList = await request(baseUrl).get('/api/workspaces').set(as(member)).expect(200);
     expect(
-      (memberList.body as Array<{ id: string }>).some(
-        (workspace) => workspace.id === workspaceId,
-      ),
+      (memberList.body as Array<{ id: string }>).some((workspace) => workspace.id === workspaceId)
     ).toBe(true);
   });
 
@@ -186,10 +179,7 @@ describe('Critical flow (e2e)', () => {
     expect(created.body.position).toBe(0);
 
     // Initial history entry exists (fromStatus = null).
-    const details = await request(baseUrl)
-      .get(`/api/tasks/${taskId}`)
-      .set(as(member))
-      .expect(200);
+    const details = await request(baseUrl).get(`/api/tasks/${taskId}`).set(as(member)).expect(200);
     expect(details.body.history).toHaveLength(1);
     expect(details.body.history[0].fromStatus).toBeNull();
 
@@ -200,10 +190,7 @@ describe('Critical flow (e2e)', () => {
       .send({ status: 'IN_PROGRESS' })
       .expect(200);
 
-    const afterMove = await request(baseUrl)
-      .get(`/api/tasks/${taskId}`)
-      .set(as(owner))
-      .expect(200);
+    const afterMove = await request(baseUrl).get(`/api/tasks/${taskId}`).set(as(owner)).expect(200);
     expect(afterMove.body.history).toHaveLength(2);
     expect(afterMove.body.history[0]).toMatchObject({
       fromStatus: 'TODO',
@@ -231,9 +218,9 @@ describe('Critical flow (e2e)', () => {
       .get(`/api/projects/${projectId}/tasks?search=ci`)
       .set(as(member))
       .expect(200);
-    expect(
-      (searched.body.items as Array<{ title: string }>).map((t) => t.title),
-    ).toContain('Set up CI');
+    expect((searched.body.items as Array<{ title: string }>).map((t) => t.title)).toContain(
+      'Set up CI'
+    );
   });
 
   it('reorders columns on move and keeps positions sequential', async () => {
@@ -249,7 +236,7 @@ describe('Critical flow (e2e)', () => {
       .set(as(member))
       .expect(200);
     const positions = (done.body.items as Array<{ id: string; position: number }>).map(
-      (task) => task.position,
+      (task) => task.position
     );
     expect(positions).toEqual([0, 1]);
     expect((done.body.items as Array<{ id: string }>)[0].id).toBe(taskId);
@@ -275,10 +262,7 @@ describe('Critical flow (e2e)', () => {
   });
 
   it('keeps outsiders away from tasks they have no access to', async () => {
-    await request(baseUrl)
-      .get(`/api/tasks/${taskId}`)
-      .set(as(outsider))
-      .expect(403);
+    await request(baseUrl).get(`/api/tasks/${taskId}`).set(as(outsider)).expect(403);
     await request(baseUrl)
       .patch(`/api/tasks/${taskId}`)
       .set(as(outsider))
@@ -287,10 +271,7 @@ describe('Critical flow (e2e)', () => {
   });
 
   it('restricts project deletion to the workspace owner', async () => {
-    await request(baseUrl)
-      .delete(`/api/projects/${projectId}`)
-      .set(as(member))
-      .expect(403);
+    await request(baseUrl).delete(`/api/projects/${projectId}`).set(as(member)).expect(403);
   });
 
   it('rotates refresh tokens and rejects reuse', async () => {
@@ -316,10 +297,7 @@ describe('Critical flow (e2e)', () => {
       transports: ['websocket'],
     });
     await new Promise<void>((resolve, reject) => {
-      const connectTimeout = setTimeout(
-        () => reject(new Error('socket connect timeout')),
-        10_000,
-      );
+      const connectTimeout = setTimeout(() => reject(new Error('socket connect timeout')), 10_000);
       socket.on('connect', () => {
         clearTimeout(connectTimeout);
         resolve();
@@ -331,12 +309,12 @@ describe('Critical flow (e2e)', () => {
     });
 
     const joined = await new Promise<{ ok: boolean }>((resolve) =>
-      socket.emit('project:join', projectId, resolve),
+      socket.emit('project:join', projectId, resolve)
     );
     expect(joined.ok).toBe(true);
 
     const received = new Promise<Record<string, unknown>>((resolve) =>
-      socket.once('task.created', resolve),
+      socket.once('task.created', resolve)
     );
     await request(baseUrl)
       .post(`/api/projects/${projectId}/tasks`)
@@ -345,10 +323,7 @@ describe('Critical flow (e2e)', () => {
       .expect(201);
 
     const event = await new Promise<Record<string, unknown>>((resolve, reject) => {
-      const eventTimeout = setTimeout(
-        () => reject(new Error('no socket event')),
-        10_000,
-      );
+      const eventTimeout = setTimeout(() => reject(new Error('no socket event')), 10_000);
       received.then(
         (payload) => {
           clearTimeout(eventTimeout);
@@ -357,7 +332,7 @@ describe('Critical flow (e2e)', () => {
         (error: unknown) => {
           clearTimeout(eventTimeout);
           reject(error);
-        },
+        }
       );
     });
     expect((event as { title?: string }).title ?? '').toContain('Realtime');
@@ -369,7 +344,7 @@ describe('Critical flow (e2e)', () => {
     });
     await new Promise<void>((resolve) => stranger.on('connect', () => resolve()));
     const denied = await new Promise<{ ok: boolean }>((resolve) =>
-      stranger.emit('project:join', projectId, resolve),
+      stranger.emit('project:join', projectId, resolve)
     );
     expect(denied.ok).toBe(false);
 

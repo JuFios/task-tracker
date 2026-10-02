@@ -1,9 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  Logger,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { ConflictException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { randomBytes, createHash } from 'crypto';
@@ -39,7 +34,7 @@ export class AuthService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-    private readonly config: AppConfig,
+    private readonly config: AppConfig
   ) {}
 
   async register(dto: RegisterDto): Promise<AuthResult> {
@@ -65,8 +60,7 @@ export class AuthService {
   async login(dto: LoginDto): Promise<AuthResult> {
     const email = dto.email.toLowerCase().trim();
     const user = await this.prisma.user.findUnique({ where: { email } });
-    const passwordValid =
-      user && (await bcrypt.compare(dto.password, user.passwordHash));
+    const passwordValid = user && (await bcrypt.compare(dto.password, user.passwordHash));
 
     if (!user || !passwordValid) {
       this.logger.warn(`Failed login attempt for email: ${email}`);
@@ -145,13 +139,11 @@ export class AuthService {
       {
         secret: this.config.jwtAccessSecret,
         expiresIn: this.config.accessTokenTtl,
-      },
+      }
     );
 
     const refreshToken = randomBytes(REFRESH_TOKEN_BYTES).toString('base64url');
-    const expiresAt = new Date(
-      Date.now() + this.config.refreshTokenTtlDays * 24 * 60 * 60 * 1000,
-    );
+    const expiresAt = new Date(Date.now() + this.config.refreshTokenTtlDays * 24 * 60 * 60 * 1000);
     await this.prisma.refreshToken.create({
       data: { tokenHash: this.hashRefreshToken(refreshToken), userId, expiresAt },
     });
@@ -163,12 +155,7 @@ export class AuthService {
     return createHash('sha256').update(token).digest('hex');
   }
 
-  private toSafeUser(user: {
-    id: string;
-    email: string;
-    name: string;
-    createdAt: Date;
-  }): SafeUser {
+  private toSafeUser(user: { id: string; email: string; name: string; createdAt: Date }): SafeUser {
     return {
       id: user.id,
       email: user.email,

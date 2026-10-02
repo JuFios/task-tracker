@@ -84,17 +84,12 @@ function Column({
         ref={setNodeRef}
         className={cn(
           'flex min-h-24 flex-1 flex-col gap-2 rounded-xl p-1 transition-colors',
-          isOver && 'bg-indigo-100/60 ring-2 ring-inset ring-indigo-300',
+          isOver && 'bg-indigo-100/60 ring-2 ring-inset ring-indigo-300'
         )}
       >
         <SortableContext items={tasks.map((t) => t.id)} strategy={verticalListSortingStrategy}>
           {tasks.map((task) => (
-            <TaskCardView
-              key={task.id}
-              task={task}
-              disabled={hasFilters}
-              onOpen={onOpenTask}
-            />
+            <TaskCardView key={task.id} task={task} disabled={hasFilters} onOpen={onOpenTask} />
           ))}
         </SortableContext>
         {tasks.length === 0 && (
@@ -125,7 +120,7 @@ function OverlayCard({ task }: { task: TaskCard }) {
               'inline-flex items-center gap-1',
               isOverdue(task.dueDate) && task.status !== 'DONE'
                 ? 'font-medium text-rose-600'
-                : 'text-slate-500',
+                : 'text-slate-500'
             )}
           >
             <Calendar className="h-3.5 w-3.5" />
@@ -178,7 +173,7 @@ export function Board({
     useSensor(PointerSensor, {
       activationConstraint: { distance: 6 },
       disabled: hasFilters,
-    }),
+    })
   );
 
   const findStatus = (id: UniqueIdentifier): TaskStatus | undefined => {
@@ -221,7 +216,11 @@ export function Board({
       const activeIndex = activeItems.findIndex((t) => t.id === active.id);
       const overIndex = overItems.findIndex((t) => t.id === over.id);
       if (activeIndex === -1) return prev;
-      const next: Columns = { ...prev, [activeStatus]: [...activeItems], [overStatus]: [...overItems] };
+      const next: Columns = {
+        ...prev,
+        [activeStatus]: [...activeItems],
+        [overStatus]: [...overItems],
+      };
       const [moved] = next[activeStatus].splice(activeIndex, 1);
       next[overStatus].splice(overIndex >= 0 ? overIndex : next[overStatus].length, 0, moved);
       return next;
@@ -243,7 +242,9 @@ export function Board({
     if (activeIndex === -1) return;
     // Dropping over the column container itself means "append at the end".
     const overIndex =
-      over.id === overStatus ? Math.max(0, overItems.length - 1) : overItems.findIndex((t) => t.id === over.id);
+      over.id === overStatus
+        ? Math.max(0, overItems.length - 1)
+        : overItems.findIndex((t) => t.id === over.id);
     if (overIndex === -1) return;
 
     const nextItems =
@@ -276,11 +277,7 @@ export function Board({
         icon={Plus}
         title="Failed to load tasks"
         description="There was an error loading the board. Please try again."
-        action={
-          <Button onClick={() => syncFromServer()}>
-            Retry
-          </Button>
-        }
+        action={<Button onClick={() => syncFromServer()}>Retry</Button>}
       />
     );
   }

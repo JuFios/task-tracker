@@ -37,10 +37,7 @@ export function Modal({ open, onClose, title, children, className }: ModalProps)
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={cn(
-          'relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl',
-          className,
-        )}
+        className={cn('relative w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl', className)}
       >
         <div className="mb-4 flex items-start justify-between gap-4">
           <h2 className="text-lg font-semibold text-slate-900">{title}</h2>

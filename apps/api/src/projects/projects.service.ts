@@ -22,7 +22,7 @@ export type ProjectPreview = Prisma.ProjectGetPayload<{
 export class ProjectsService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly workspaces: WorkspacesService,
+    private readonly workspaces: WorkspacesService
   ) {}
 
   async listForWorkspace(userId: string, workspaceId: string) {
@@ -70,10 +70,7 @@ export class ProjectsService {
   }
 
   async remove(userId: string, projectId: string): Promise<void> {
-    const project = await this.workspaces.assertProjectMember(
-      userId,
-      projectId,
-    );
+    const project = await this.workspaces.assertProjectMember(userId, projectId);
     await this.workspaces.assertRole(userId, project.workspaceId, WorkspaceRole.OWNER);
     await this.prisma.project.delete({ where: { id: projectId } });
   }

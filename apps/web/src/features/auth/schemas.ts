@@ -18,11 +18,11 @@ export const registerSchema = z.object({
     .min(8, 'At least 8 characters')
     .refine(
       (value) => passwordBytes(value) <= MAX_PASSWORD_BYTES,
-      `At most ${MAX_PASSWORD_BYTES} bytes (UTF-8)`,
+      `At most ${MAX_PASSWORD_BYTES} bytes (UTF-8)`
     )
     .refine(
       (value) => /[A-Za-z]/.test(value) && /\d/.test(value),
-      'Must contain at least one letter and one digit',
+      'Must contain at least one letter and one digit'
     ),
 });
 export type RegisterValues = z.infer<typeof registerSchema>;

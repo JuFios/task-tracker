@@ -13,7 +13,7 @@ import {
  */
 export function MaxByteLength(
   bytes: number,
-  validationOptions?: ValidationOptions,
+  validationOptions?: ValidationOptions
 ): PropertyDecorator {
   return function (object: object, propertyName: string) {
     registerDecorator({

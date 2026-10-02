@@ -12,16 +12,12 @@ export interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(function Input(
   { className, invalid, ...props },
-  ref,
+  ref
 ) {
   return (
     <input
       ref={ref}
-      className={cn(
-        BASE_FIELD,
-        invalid && 'ring-rose-400 focus:ring-rose-500',
-        className,
-      )}
+      className={cn(BASE_FIELD, invalid && 'ring-rose-400 focus:ring-rose-500', className)}
       {...props}
     />
   );

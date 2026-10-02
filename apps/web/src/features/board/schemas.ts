@@ -2,7 +2,12 @@ import { z } from 'zod';
 
 export const taskSchema = z.object({
   title: z.string().trim().min(1, 'Title is required').max(200, 'At most 200 characters'),
-  description: z.string().trim().max(10_000, 'At most 10000 characters').optional().or(z.literal('')),
+  description: z
+    .string()
+    .trim()
+    .max(10_000, 'At most 10000 characters')
+    .optional()
+    .or(z.literal('')),
   priority: z.enum(['LOW', 'MEDIUM', 'HIGH', 'URGENT']),
   dueDate: z.string().optional().or(z.literal('')),
   assigneeId: z.string().optional().or(z.literal('')),
