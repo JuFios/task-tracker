@@ -1,0 +1,34 @@
+{
+  "name": "task-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Task Tracker — full-stack task management with Kanban boards and realtime collaboration",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n api,web -c blue,green \"npm run start:dev -w @task-tracker/api\" \"npm run dev -w @task-tracker/web\"",
+    "build": "npm run build -w @task-tracker/api && npm run build -w @task-tracker/web",
+    "test": "npm run test -w @task-tracker/api",
+    "test:e2e": "npm run test:e2e -w @task-tracker/api",
+    "db:migrate": "npm run db:migrate -w @task-tracker/api",
+    "db:generate": "npm run db:generate -w @task-tracker/api",
+    "db:studio": "npm run db:studio -w @task-tracker/api",
+    "lint": "eslint . --ext .ts,.tsx",
+    "lint:fix": "eslint . --ext .ts,.tsx --fix",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "format:check": "prettier --check \"**/*.{ts,tsx,json,md}\""
+  },
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^8.18.0",
+    "@typescript-eslint/parser": "^8.18.0",
+    "concurrently": "^9.1.2",
+    "eslint": "^9.17.0",
+    "prettier": "^3.4.2",
+    "eslint-plugin-react-hooks": "^5.1.0",
+    "globals": "^15.11.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

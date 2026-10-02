@@ -1,0 +1,69 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: task_tracker
+          POSTGRES_USER: task_tracker
+          POSTGRES_PASSWORD: task_tracker_test_password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U task_tracker -d task_tracker"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://task_tracker:task_tracker_test_password@localhost:5432/task_tracker?schema=public
+      JWT_ACCESS_SECRET: ci-access-secret-change-me-0123456789abcdef
+      ACCESS_TOKEN_TTL: 15m
+      REFRESH_TOKEN_TTL_DAYS: 7
+      WEB_ORIGIN: http://localhost:5173
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate Prisma client
+        run: npm run db:generate -w @task-tracker/api
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Apply migrations
+        run: npx prisma migrate deploy --schema apps/api/prisma/schema.prisma
+
+      - name: Build API
+        run: npm run build -w @task-tracker/api
+
+      - name: Build web
+        run: npm run build -w @task-tracker/web
+        env:
+          VITE_API_URL: /api
+
+      - name: Unit tests
+        run: npm test
+
+      - name: E2E tests
+        run: npm run test:e2e
