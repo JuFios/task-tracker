@@ -33,7 +33,8 @@ docker compose up --build
 Потрібні Node 20+ і PostgreSQL (локально або в Docker: `docker compose up -d db`).
 
 ```bash
-cp .env.example .env   # вкажіть свій DATABASE_URL
+cp .env.example .env             # Для Docker Compose
+cp .env.example apps/api/.env    # Для локального запуску NestJS та Prisma
 npm install
 npm run db:generate    # prisma generate
 npm run db:migrate     # prisma migrate dev
